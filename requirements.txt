@@ -6,4 +6,6 @@ pytz==2018.5
 whitenoise==4.0
 django-braces
 django-embed-video
+django-heroku
+
 
