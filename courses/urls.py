@@ -1,5 +1,7 @@
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from . import views
+
 
 
 urlpatterns = [
@@ -10,14 +12,15 @@ urlpatterns = [
     path('<pk>/module/', views.CourseModuleUpdateView.as_view(), name='course_module_update'),
     path('module/<int:module_id>/content/<model_name>/create/', views.ContentCreateUpdateView.as_view(),
          name='module_content_create'),
-    path('module/<int:module_id>/content/<model_name>/<id>/', views.ContentCreateUpdateView.as_view(),
+    path('content/<int:module_id>/content/<model_name>/<id>/', views.ContentCreateUpdateView.as_view(),
          name='module_content_update'),
-    path('content/<int:id>/delete/', views.ContentDeleteView.as_view(), name='module_content_delete'),
+    path('module/<int:id>/delete/', views.ContentDeleteView.as_view(), name='module_content_delete'),
     path('module/<int:module_id>/', views.ModuleContentListView.as_view(), name='module_content_list'),
     path('module/order/', views.ModuleOrderView.as_view(), name='module_order'),
     path('content/order/', views.ContentOrderView.as_view(), name='content_order'),
     path('subject/<slug:subject>/', views.CourseListView.as_view(), name='course_list_subject'),
     path('<slug:slug>/', views.CourseDetailView.as_view(), name='course_detail'),
-
+    path('home/', views.home, name='home'),
+    path('quiz/<pk>/<module_id>/<model_name>/', views.take_quiz, name='take_quiz'),
 
 ]

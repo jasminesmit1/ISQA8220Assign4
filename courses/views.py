@@ -5,16 +5,22 @@ from django.views.generic.edit import CreateView, UpdateView, \
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, \
                                        PermissionRequiredMixin
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.views.generic.base import TemplateResponseMixin, View
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
 from django.forms.models import modelform_factory
 from django.apps import apps
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
-from .models import Course
-from .models import Module, Content, Subject
+from .models import Course, User
+from quizzes.models import *
+from .models import Module, Content, Subject, QuizItem
 from .forms import ModuleFormSet
 from django.db.models import Count
 from students.forms import CourseEnrollForm
+from quizzes.forms import QuizModelForm
+from students.views import StudentCourseDetailView
 
 
 # Create your views here.
@@ -100,9 +106,10 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
     template_name = 'courses/manage/content/form.html'
 
     def get_model(self, model_name):
-        if model_name in ['text', 'video', 'image', 'file']:
+        if model_name in ['text', 'video', 'image', 'file', 'quizitem']:
             return apps.get_model(app_label='courses',
                                   model_name=model_name)
+
         return None
 
     def get_form(self, model, *args, **kwargs):
@@ -197,8 +204,11 @@ class CourseListView(TemplateResponseMixin, View):
     template_name = 'courses/course/list.html'
 
     def get(self, request, subject=None):
-        subjects = Subject.objects.annotate(
+        subjects = cache.get('all_subjects')
+        if not subjects:
+            subjects = Subject.objects.annotate(
                     total_courses=Count('courses'))
+            cache.set('all_subjects', subjects)
         courses = Course.objects.annotate(
                     total_modules=Count('modules'))
         if subject:
@@ -218,4 +228,83 @@ class CourseDetailView(DetailView):
         context['enroll_form'] = CourseEnrollForm(
                                     initial={'course': self.object})
         return context
+
+
+# @method_decorator([login_required], name='dispatch')
+class Profile(View):
+    model = User
+
+    def dispatch(self, request, *args, **kwargs):
+        group = request.user.get_group_permissions()
+        if 'courses.add_course' in group:
+            return redirect('manage_course_list')
+        else:
+            return redirect('student_course_list')
+        return super(Profile, self).dispatch(request, *args, **kwargs)
+
+
+def home(request):
+    return redirect('profile')
+
+
+def take_quiz(request, pk, model_name, *args, **kwargs):
+    context = QuizItem.objects.filter(title=model_name, id=pk).get()
+    print(context)
+    quiz = Quiz.objects.filter(id=context.quiz_id).get()
+    print(quiz)
+    questions = Question.objects.all().filter(quiz=quiz)
+    print(questions)
+    # for question in questions:
+    answers = Answer.objects.all().filter(question__in=questions)
+    correct = []
+    text = []
+    for answer in answers:
+        text.append(answer.text)
+        if answer.is_correct:
+            correct.append(answer.text)
+    print(answers)
+    print(correct)
+    print(text)
+    return render(request, 'courses/content/quiz_detail.html', {'quiz': quiz, 'questions': questions,
+                                                                'answers': answers, 'correct': correct, 'text': text})
+
+
+# def quiz_view(request, pk, module_id):
+#     print(request)
+#     quiz = Question.objects.all().filter(answers=module_id)
+#     if not quiz:
+#         quiz = Quiz.objects.annotate(
+#                     total_courses=Count('name'))
+#         cache.set('all_quizzes', quiz)
+#         questions = Question.objects.annotate(
+#             total_modules=Count('label'))
+#         answers = Answer.objects.annotate(
+#                     total_modules=Count('question'))
+#         if quiz:
+#             questions = get_object_or_404(Question, id=questions.id)
+#             answers = answers.filter(question=questions)
+#     return redirect ({'questions': questions, 'answers': answers, 'quiz': quiz})
+#
+# class QuizDetailView(DetailView):
+#     template_name = 'courses/content/quiz_detail.html'
+#     queryset = Quiz
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(QuizDetailView, self).get_context_data(**kwargs)
+    #     # get quiz object
+    #     quiz = self.get_object()
+    #     if 'module_id' in self.kwargs:
+    #         # get current answers
+    #         context['answers'] = question.label.get(id=self.kwargs['module_id'])
+    #
+    #     else:
+    #         # get first answers
+    #         context['quiz'] = quiz.answers.all()[0]
+    #     # # print(context['answers'].id)
+    #     # group = Content.objects.all().filter(answers=context['answers'].id)
+    #     # # for i in type:
+    #     # #     print(i.content_type)
+    #     print(self)
+    #     # print(context)
+    #     return context
 

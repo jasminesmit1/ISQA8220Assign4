@@ -1,4 +1,5 @@
 from django.urls import reverse_lazy
+from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
@@ -7,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CourseEnrollForm
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from courses.models import Course
+from courses.models import Course, Content
 
 
 class StudentRegistrationView(CreateView):
@@ -53,18 +54,26 @@ class StudentCourseDetailView(DetailView):
     template_name = 'students/course/detail.html'
 
     def get_queryset(self):
-        qs = super(StudentCourseDetailView, self).get_querset()
+        qs = super(StudentCourseDetailView, self).get_queryset()
         return qs.filter(students__in=[self.request.user])
 
     def get_context_data(self, **kwargs):
         context = super(StudentCourseDetailView, self).get_context_data(**kwargs)
-        # get course object
+        # get quiz object
         course = self.get_object()
+
         if 'module_id' in self.kwargs:
-            # get current module
+            # get current answers
             context['module'] = course.modules.get(id=self.kwargs['module_id'])
 
         else:
-            # get first module
+            # get first answers
             context['module'] = course.modules.all()[0]
+        # print(context)
+        # group = Content.objects.all().filter(module=context['module'].id)
+        # mod = context['module'].id
+        # id = context['object'].id
+        # print(mod, id)
+        # for i in type:
+        #     print(i.content_type)
         return context

@@ -10,3 +10,9 @@ DATABASES = {
 }
 
 DEBUG = True
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'jrsmith072@gmail.com'
+EMAIL_HOST_PASSWORD = 'Mookie09'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

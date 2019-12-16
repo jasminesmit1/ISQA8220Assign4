@@ -16,6 +16,7 @@
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}" />
         <p><input type="submit" value="Log-in"></p>
+        <button type="submit"><a href = "{% url "password_reset" %}">Forgot Password?</a></button>
       </form>
     </div>
   </div>

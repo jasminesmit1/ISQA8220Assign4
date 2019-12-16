@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'students.apps.StudentsConfig',
     'embed_video',
+    'memcache_status',
+    'quizzes',
+    'django_filters',
+
 ]
 
 MIDDLEWARE = [
@@ -147,6 +151,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = 'postmaster@sandbox33ed30ad3c1c4211b3ce2ad56f1523a8.mailgun.org'
+EMAIL_HOST_PASSWORD = 'a8f268457ff1b53ae8a13cd7f3d388d2-af6c0cec-a6ce54f5'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 try:
     from .local_settings import *
 except ImportError:
@@ -155,8 +165,18 @@ except ImportError:
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
+
 from django.urls import reverse_lazy
-LOGIN_REDIRECT_URL = reverse_lazy('student_course_list')
+# LOGIN_REDIRECT_URL = reverse_lazy('course_list_subject')
+LOGIN_REDIRECT_URL = 'profile'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
 
 django_heroku.settings(locals())
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}

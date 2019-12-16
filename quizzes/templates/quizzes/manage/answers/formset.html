@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ object.quiz.name }}
+{% endblock %}
+
+{% block content %}
+  <h1>Edit "
+    {{ object}}"
+  </h1>
+<div id="module">
+    <h2>Quiz Answers</h2>
+    <form action="" method="post">
+            {{ form.as_p }}
+            {{ form.management_form }}
+            {% csrf_token %}
+
+{#    <input type="button" class="button" value="Add More" id="add_more">#}
+    <input type="submit" class="button" value="Save Answers">
+   </form>
+</div>
+<div id="module-contents" class="add_more" style="display:none">
+    <table class='no_error'>
+        {{ item.empty_form }}
+        {% csrf_token %}
+    </table>
+</div>
+{##}
+{#  <div class="module">#}
+{#    <h2>Quiz Answers</h2>#}
+{#        <form action="" method="post">#}
+{#            {% for item in form %}#}
+{#                {{ item.as_p }}#}
+{#                {{ item.management_form }}#}
+{#                {% csrf_token %}#}
+{#      {% endfor %}#}
+{#      <input type="submit" class="button" value="Save Answers">#}
+{#    </form>#}
+{#  </div>#}
+<script>
+    $('#add_more').click(function() {
+        var form_idx = $('#id_form-TOTAL_FORMS').val();
+        print(form_idx)
+        $('#module').append($('#module-contents').html().replace(/__prefix__/g, form_idx));
+        $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+    });
+</script>
+{% endblock %}
+

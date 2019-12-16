@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>My Quizzes</h1>
+  <div class="module">
+    {% for quiz in quiz_list %}
+      <div class="course-info">
+        <h3>{{ quiz.name }}</h3>
+        <p>
+          <a href="{% url "quiz_delete" quiz.id %}">Delete</a>
+            <a href="{% url "answers_create"  quiz.id %}">Add Answers</a>
+{#         {% if course.modules.count > 0 %}#}
+{#             <a href="{% url "question_content_list" quiz.question.first.id %}">Create questions</a>#}
+{#         {% endif %}#}
+{#        </p>#}
+      </div>
+    {% empty %}
+      <p>You haven't created any quizzes yet.</p>
+    {% endfor %}
+    <p>
+      <a href="{% url "quiz_create" %}" class="button">Create new quiz</a>
+    </p>
+  </div>
+{% endblock %}

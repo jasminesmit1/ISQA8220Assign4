@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>
+    {% if object %}
+      Edit quiz {{ object.title }}
+    {% else %}
+      Create a new quiz
+    {% endif %}
+  </h1>
+  <div class="module">
+    <h2>Quiz info</h2>
+    <form action="" method="post">
+        {{quiz.as_p }}
+        <label><h2>Enter Questions:</h2></label>
+        {{ formset }}
+        {{ formset.management_form }}
+        {% csrf_token %}
+      <p><input type="submit" value="Save Quiz"></p>
+    </form>
+  </div>
+{% endblock %}

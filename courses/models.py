@@ -4,6 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.template.loader import render_to_string
+from django.template.defaultfilters import slugify
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from quizzes.models import Quiz, Answer
 from django.utils.safestring import mark_safe
 
 
@@ -58,7 +62,7 @@ class Content(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
                                      limit_choices_to={'model_in': (
                                                         'text', 'video',
-                                                        'image', 'file')})
+                                                        'image', 'file', 'quizitem')})
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
     order = OrderField(blank=True, for_fields=['module'])
@@ -94,10 +98,20 @@ class File(ItemBase):
 
 
 class Image(ItemBase):
-    file = models.FileField(upload_to='images')
+    file = models.ImageField(upload_to='images')
 
 
 class Video(ItemBase):
     url = models.URLField()
 
 
+class QuizItem(ItemBase):
+    course = models.ForeignKey(Course, related_name='quiztype',
+                               on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, related_name='content_type',
+                               on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+
+@receiver(pre_save, sender=Course)
+def slugify_title(sender, instance, *args, **kwargs):
+    instance.slug =slugify(instance.title)

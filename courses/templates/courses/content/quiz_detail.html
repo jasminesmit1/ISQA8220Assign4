@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}
+        {{ quiz.name }}
+{% endblock %}
+{% block content %}
+    <div id="module-contents">
+        <h1>{{ quiz.name }}</h1>
+        {% for question in questions %}
+            <label><p>{{ question }}</p></label>
+            <select id="select">
+            {% for answer in answers %}
+                <option>{{ answer }}</option>
+            {% endfor %}
+            </select>
+        {% endfor %}
+    </div>
+    <div id="content">
+        <input onclick="getSelected()" type="submit" class="button" value="Submit">
+       <label><a href="{{request.META.HTTP_REFERER|escape}}">Go Back</a></label>
+    </div>
+<script type="text/javascript">
+        let correct_list = "{{correct|escapejs}}";
+        let selected = [];
+        let tags = document.querySelectorAll("#select");
+
+    function getSelected() {
+        for (let i = 0; i < tags.length; i++) {
+            let choice = tags[i].selectedIndex;
+            console.log("choice: " + choice +"" + tags[i][choice].innerText);
+            selected.push(tags[i][choice].innerText);
+            tags[i].setAttribute('disabled', 'disabled')
+        }
+        gradeQuiz()
+    }
+    function gradeQuiz(){
+        let correct_num = 0;
+        for (let t = 0; t < tags.length; t++) {
+            let check = correct_list.includes(selected[t]);
+            if (check) {
+                correct_num++;
+            }
+        }
+        window.alert("You got " + correct_num + " out of " + tags.length );
+    }
+</script>
+
+{% endblock %}
