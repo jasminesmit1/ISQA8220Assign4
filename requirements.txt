@@ -9,3 +9,4 @@ django-heroku
 python-memcached
 django-memcache-status
 psycopg2==2.8.4
+Pillow
