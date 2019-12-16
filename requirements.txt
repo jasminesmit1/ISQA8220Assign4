@@ -9,5 +9,5 @@ django-embed-video
 django-heroku
 python-memcached
 django-memcache-status
-django_filters
+
 

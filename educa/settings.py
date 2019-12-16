@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'embed_video',
     'memcache_status',
     'quizzes',
-    'django_filters',
 
 ]
 
