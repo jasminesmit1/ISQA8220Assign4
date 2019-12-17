@@ -1,7 +1,7 @@
 *.pyc
 *~
 *.sqlite3
-myvenv
+venv
 __pycache__
 local_settings.py
 /.idea

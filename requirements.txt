@@ -10,3 +10,5 @@ python-memcached
 django-memcache-status
 psycopg2==2.8.4
 Pillow
+django-storages
+boto3
